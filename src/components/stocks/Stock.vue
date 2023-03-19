@@ -3,14 +3,26 @@
     <v-card color="green">
       <v-card-title class="healine">
         <strong
-          >{{ stock.name }}<small>(Preço: {{ stock.price }})</small></strong
+          >{{ stock.name }}<small>(Preço: {{ formattedValue }})</small></strong
         >
       </v-card-title>
     </v-card>
     <v-card>
       <v-container fill-height>
-        <v-text-field label="Quantidade" type="number" v-model.number="quantity" />
-        <v-btn color="green" @click="buyStock(stock)" :disabled="quantity <= 0 || !Number.isInteger(quantity)">Comprar</v-btn>
+        <v-text-field
+          label="Quantidade"
+          type="number"
+          :error="insufficientFunds || !Number.isInteger(quantity)"
+          v-model.number="quantity"
+        />
+        <v-btn
+          color="green"
+          @click="buyStock(stock)"
+          :disabled="
+            insufficientFunds || quantity <= 0 || !Number.isInteger(quantity)
+          "
+          >{{ insufficientFunds ? "Insuficiente" : "Comprar" }}</v-btn
+        >
       </v-container>
     </v-card>
   </v-col>
@@ -18,6 +30,8 @@
 
 <script>
 import { ref } from "vue";
+import { useStore } from "vuex";
+import { currency } from "./../../utils/currency";
 
 export default {
   name: "Stock",
@@ -28,22 +42,38 @@ export default {
     },
   },
   setup() {
+    const store = useStore();
     const quantity = ref(0);
 
     const buyStock = (stock) => {
-        const order ={
-            stockId:stock.id,
-            stockPrice:stock.price,
-            quantity:quantity.value
-        }
-        quantity.value = 0;
-        console.log(order);
+      const order = {
+        stockId: stock.id,
+        stockPrice: stock.price,
+        quantity: quantity.value,
+      };
+
+      store.dispatch("buyStock", order);
+      quantity.value = 0;
     };
 
     return {
       quantity,
-      buyStock
+      buyStock,
     };
+  },
+
+  computed: {
+    funds() {
+      return this.$store.getters.funds;
+    },
+
+    insufficientFunds() {
+      return this.quantity * this.stock.price > this.funds;
+    },
+
+    formattedValue() {
+      return currency(this.stock.price);
+    },
   },
 };
 </script>
