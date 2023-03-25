@@ -18,6 +18,11 @@ export default {
             state.funds -= stockPrice *quantity;
         },
 
+        setPortfolio(state,portfolio){
+            state.funds = portfolio.funds;
+            state.stocks = portfolio.stockPortfolio ? portfolio.stockPortfolio : [];
+        },
+
         sellStock(state, {stockId, quantity, stockPrice}){
             const record = state.stocks.find(element => element.id === stockId)
                 if(record.quantity > quantity){

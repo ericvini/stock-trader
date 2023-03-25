@@ -18,10 +18,10 @@
       <v-menu v-model="showMenu" offset-y>
         <v-list>
           <v-list-item>
-            <v-list-item-title>Salvar Dados</v-list-item-title>
+            <v-list-item-title @click="registerData">Salvar Dados</v-list-item-title>
           </v-list-item>
           <v-list-item>
-            <v-list-item-title>Carregar</v-list-item-title>
+            <v-list-item-title @click="loadDataLocal">Carregar Dados</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -38,24 +38,16 @@
 import { currency } from "./../utils/currency";
 import { ref } from "vue";
 import { mapActions } from "vuex";
+import axios from 'axios';
+import VueAxios from 'vue-axios';
 
 export default {
   name: "Header",
   setup() {
     const showMenu = ref(false);
 
-    function saveData() {
-      // Coloque aqui o código para salvar os dados
-    }
-
-    function loadData() {
-      // Coloque aqui o código para carregar os dados
-    }
-
     return {
       showMenu,
-      saveData,
-      loadData,
     };
   },
 
@@ -68,13 +60,27 @@ export default {
     },
   },
 
-  methods:{
-    ...mapActions(['randomizeStocks']),
-    endDay(){
-      this.randomizeStocks()
+  methods: {
+    ...mapActions(["randomizeStocks","loadData","saveData"]),
+    endDay() {
+      this.randomizeStocks();
+    },
+
+    registerData() {
+      const { funds, stockPortfolio, stocks } = this.$store.getters;
+      this.saveData();
+      /* this.$http.put("data.json", { funds, stockPortfolio, stocks }); */
+    },
+
+    loadDataLocal(){
+      this.loadData();
     }
-  }
+  },
+  
+
 };
+
+
 </script>
 
 <style scoped></style>
